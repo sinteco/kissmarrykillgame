@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Card from 'react-bootstrap/Card';
 import Image from 'react-bootstrap/Image';
 import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 
 function ImageRender(){
@@ -64,11 +65,6 @@ function ImageRender(){
         }
         return array;
     }
-    //always just show  same suffle or dont suffle everytime the function calls
-    const shuffledImages = React.useMemo(() => {
-        return shuffle(MyCollection);
-      }, []);
-    
     //states to use for game
     const [disabledkill, setkill] = useState(false);
     const [disabledkiss, setkiss] = useState(false);
@@ -77,6 +73,13 @@ function ImageRender(){
     const [selectedPersons, setselectedPersons] = useState(initialValue);
     const CollectionSize = 3;
     const [index, setActiveStep] = useState(0);
+    const [show, setShow] = useState(false);
+    const [images, setimages] = useState(shuffle(MyCollection));
+
+    //close modal
+    const handleClose = () => setShow(false);
+    //show modal
+    const handleShow = () => setShow(true);
     //set next person(image)
     const goToNextPicture = () => {
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -85,6 +88,15 @@ function ImageRender(){
     const goToPrivPicture = () => {
       setActiveStep((prevActiveStep) => prevActiveStep - 1);
     };
+    //array sum
+    function total(arr) {
+        if(!Array.isArray(arr)) return;
+        let sum=0;
+        arr.forEach(each => {
+          sum= +sum + +each;
+        });
+        return sum;
+      };
     //select person(image): disable if its not selected index and choice from 3
     const selectPerson = (index,choice) => {
       if(selectedPersons[index]==='0'){
@@ -99,12 +111,29 @@ function ImageRender(){
         setmarry(true);
       }
       }
+      //finish the game
+      if(total(selectedPersons)==2){
+        //show modal
+        handleShow();
+        //rest game
+        resetgame()
+      }
+    }
+    //restart the game
+    function resetgame(){
+        setimages(shuffle(MyCollection));
+        setselectedPersons(initialValue);
+        setkiss(false);
+        setkill(false);
+        setmarry(false);
+        setActiveStep(0);
     }
       return(
       <Card border="dark" style={{ width: '29rem' }}>
+          <Button variant="light" onClick={()=>resetgame()} size="small" style={{ float: "right", width:'12rem' }}>Reset</Button>
       <Card.Body>
         <Image 
-          src={shuffledImages[index].imgPath}
+          src={images[index].imgPath}
           style={{
             height: 355,
             width: "100%",
@@ -112,10 +141,10 @@ function ImageRender(){
             display: "block",
             overflow: "hidden",
           }}
-        alt={shuffledImages[index].label}
+        alt={images[index].label}
         ></Image>
         <Card.Text>
-          {shuffledImages[index].label}
+          {images[index].label}
         </Card.Text>
         <Button
           size="small"
@@ -138,7 +167,17 @@ function ImageRender(){
         >
           Next
         </Button>
-        <Button onClick={shuffle(MyCollection)} size="small" style={{ float: "right" }}>Reset</Button>
+        <Modal show={show} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Game over</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Woohoo, congratulations you have chose the best one!</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
       </Card.Body>
     </Card>
     );
