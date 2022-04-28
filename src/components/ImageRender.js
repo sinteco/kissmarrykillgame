@@ -115,18 +115,20 @@ function ImageRender(){
       if(total(selectedPersons)==2){
         //show modal
         handleShow();
-        //rest game
-        resetgame()
       }
     }
     //restart the game
     function resetgame(){
-        setimages(shuffle(MyCollection));
         setselectedPersons(initialValue);
         setkiss(false);
         setkill(false);
         setmarry(false);
         setActiveStep(0);
+    }
+    //if a player wishes to play next game
+    function playnext(){
+        resetgame();
+        setimages(shuffle(MyCollection));
     }
       return(
       <Card border="dark" style={{ width: '29rem' }}>
@@ -175,6 +177,9 @@ function ImageRender(){
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
             Close
+          </Button>
+          <Button variant="primary" onClick={()=>{handleClose();playnext()}}>
+            Play Next
           </Button>
         </Modal.Footer>
       </Modal>
